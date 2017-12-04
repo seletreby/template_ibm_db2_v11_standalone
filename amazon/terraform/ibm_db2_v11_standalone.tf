@@ -11,29 +11,33 @@
 ##############################################################
 # Keys - CAMC (public/private) & optional User Key (public) 
 ##############################################################
-variable "user_public_ssh_key" {
-  type = "string"
-  description = "User defined public SSH key used to connect to the virtual machine. The format must be in openSSH."
-}
-
-variable "ibm_pm_public_ssh_key" {
-  description = "Public CAMC SSH key value which is used to connect to a guest, used on VMware only."
+variable "ibm_pm_public_ssh_key_name" {
+  description = "Public CAMC SSH key name used to connect to the virtual guest."
 }
 
 variable "ibm_pm_private_ssh_key" {
   description = "Private CAMC SSH key (base64 encoded) used to connect to the virtual guest."
 }
 
-variable "allow_unverified_ssl" {
-  description = "Communication with vsphere server with self signed certificate"
+variable "user_public_ssh_key" {
+  type = "string"
+  description = "User defined public SSH key used to connect to the virtual machine. The format must be in openSSH."
+}
+
+variable "aws_ami_owner_id" {
+  description = "The AMI Owner ID"
+}
+
+variable "aws_region" {
+  description = "The aws region"
 }
 
 ##############################################################
-# Define the vsphere provider 
+# Define the aws provider 
 ##############################################################
-provider "vsphere" {
-  allow_unverified_ssl = "${var.allow_unverified_ssl}"
-  version = "~> 0.4"
+provider "aws" {
+  region = "${var.aws_region}"
+  version = "~> 1.2"
 }
 
 provider "camc" {
@@ -42,6 +46,28 @@ provider "camc" {
 
 provider "random" {
   version = "~> 1.0"
+}
+
+data "aws_vpc" "selected_vpc" {
+  filter {
+    name = "tag:Name"
+    values = ["${var.aws_vpc_name}"]
+  }
+}
+
+#Parameter : aws_vpc_name
+variable "aws_vpc_name" {
+  description = "The name of the aws vpc"
+}
+
+data "aws_security_group" "aws_sg_camc_name_selected" {
+  name = "${var.aws_sg_camc_name}"
+  vpc_id = "${data.aws_vpc.selected_vpc.id}"
+}
+
+#Parameter : aws_sg_camc_name
+variable "aws_sg_camc_name" {
+  description = "The name of the aws security group for automation content"
 }
 
 resource "random_id" "stack_id" {
@@ -57,12 +83,41 @@ variable "ibm_stack_name" {
 }
 
 #### Default OS Admin User Map ####
+variable "default_os_admin_user" {
+  type        = "map"
+  description = "look up os_admin_user using resource image"
+  default = {
+    ubuntu_images_ubuntu_xenial-16.04_099720109477 = "ubuntu"
+    RHEL-7.4_HVM_GA_309956199498                   = "ec2-user"
+  }
+}
 
 ##### DB2Node01 variables #####
+#Variable : DB2Node01-flavor
+variable "DB2Node01-flavor" {
+  type = "string"
+  description = "DB2Node01 Flavor"
+}
+
+data "aws_ami" "DB2Node01_ami" {
+  most_recent = true
+  filter {
+    name = "name"
+    values = ["${var.DB2Node01-image}*"]
+  }
+  owners = ["${var.aws_ami_owner_id}"]
+}
+
 #Variable : DB2Node01-image
 variable "DB2Node01-image" {
   type = "string"
   description = "Operating system image id / template that should be used when creating the virtual image"
+}
+
+#Variable : DB2Node01-mgmt-network-public
+variable "DB2Node01-mgmt-network-public" {
+  type = "string"
+  description = "Expose and use public IP of virtual machine for internal communication"
 }
 
 #Variable : DB2Node01-name
@@ -313,122 +368,73 @@ variable "ibm_sw_repo_user" {
   description = "IBM Software Repo Username"
 }
 
+##### domain name #####
+variable "runtime_domain" {
+  description = "domain name"
+}
+
 
 #########################################################
 ##### Resource : DB2Node01
 #########################################################
 
-variable "DB2Node01-os_password" {
+
+#Parameter : DB2Node01_subnet_name
+data "aws_subnet" "DB2Node01_selected_subnet" {
+  filter {
+    name = "tag:Name"
+    values = ["${var.DB2Node01_subnet_name}"]
+  }
+}
+
+variable "DB2Node01_subnet_name" {
   type = "string"
-  description = "Operating System Password for the Operating System User to access virtual machine"
+  description = "AWS Subnet Name"
 }
 
-variable "DB2Node01_folder" {
-  description = "Target vSphere folder for virtual machine"
-}
 
-variable "DB2Node01_datacenter" {
-  description = "Target vSphere datacenter for virtual machine creation"
-}
-
-variable "DB2Node01_domain" {
-  description = "Domain Name of virtual machine"
-}
-
-variable "DB2Node01_number_of_vcpu" {
-  description = "Number of virtual CPU for the virtual machine, which is required to be a positive Integer"
-}
-
-variable "DB2Node01_memory" {
-  description = "Memory assigned to the virtual machine in megabytes. This value is required to be an increment of 1024"
-}
-
-variable "DB2Node01_cluster" {
-  description = "Target vSphere cluster to host the virtual machine"
-}
-
-variable "DB2Node01_dns_suffixes" {
-  type = "list"
-  description = "Name resolution suffixes for the virtual network adapter"
-}
-
-variable "DB2Node01_dns_servers" {
-  type = "list"
-  description = "DNS servers for the virtual network adapter"
-}
-
-variable "DB2Node01_network_interface_label" {
-  description = "vSphere port group or network label for virtual machine's vNIC"
-}
-
-variable "DB2Node01_ipv4_gateway" {
-  description = "IPv4 gateway for vNIC configuration"
-}
-
-variable "DB2Node01_ipv4_address" {
-  description = "IPv4 address for vNIC configuration"
-}
-
-variable "DB2Node01_ipv4_prefix_length" {
-  description = "IPv4 prefix length for vNIC configuration. The value must be a number between 8 and 32"
-}
-
-variable "DB2Node01_adapter_type" {
-  description = "Network adapter type for vNIC Configuration"
-}
-
-variable "DB2Node01_root_disk_datastore" {
-  description = "Data store or storage cluster name for target virtual machine's disks"
-}
-
-variable "DB2Node01_root_disk_type" {
+#Parameter : DB2Node01_associate_public_ip_address
+variable "DB2Node01_associate_public_ip_address" {
   type = "string"
-  description = "Type of template disk volume"
+  description = "Assign a public IP"
 }
 
-variable "DB2Node01_root_disk_controller_type" {
+
+#Parameter : DB2Node01_root_block_device_volume_type
+variable "DB2Node01_root_block_device_volume_type" {
   type = "string"
-  description = "Type of template disk controller"
+  description = "AWS Root Block Device Volume Type"
 }
 
-variable "DB2Node01_root_disk_keep_on_remove" {
+
+#Parameter : DB2Node01_root_block_device_volume_size
+variable "DB2Node01_root_block_device_volume_size" {
   type = "string"
-  description = "Delete template disk volume when the virtual machine is deleted"
+  description = "AWS Root Block Device Volume Size"
 }
 
-# vsphere vm
-resource "vsphere_virtual_machine" "DB2Node01" {
-  name = "${var.DB2Node01-name}"
-  domain = "${var.DB2Node01_domain}"
-  folder = "${var.DB2Node01_folder}"
-  datacenter = "${var.DB2Node01_datacenter}"
-  vcpu = "${var.DB2Node01_number_of_vcpu}"
-  memory = "${var.DB2Node01_memory}"
-  cluster = "${var.DB2Node01_cluster}"
-  dns_suffixes = "${var.DB2Node01_dns_suffixes}"
-  dns_servers = "${var.DB2Node01_dns_servers}"
 
-  network_interface {
-    label = "${var.DB2Node01_network_interface_label}"
-    ipv4_gateway = "${var.DB2Node01_ipv4_gateway}"
-    ipv4_address = "${var.DB2Node01_ipv4_address}"
-    ipv4_prefix_length = "${var.DB2Node01_ipv4_prefix_length}"
-    adapter_type = "${var.DB2Node01_adapter_type}"
+#Parameter : DB2Node01_root_block_device_delete_on_termination
+variable "DB2Node01_root_block_device_delete_on_termination" {
+  type = "string"
+  description = "AWS Root Block Device Delete on Termination"
+}
+
+resource "aws_instance" "DB2Node01" {
+  ami = "${data.aws_ami.DB2Node01_ami.id}"
+  instance_type = "${var.DB2Node01-flavor}"
+  key_name = "${var.ibm_pm_public_ssh_key_name}"
+  vpc_security_group_ids = ["${data.aws_security_group.aws_sg_camc_name_selected.id}"]
+  subnet_id = "${data.aws_subnet.DB2Node01_selected_subnet.id}"
+  associate_public_ip_address = "${var.DB2Node01_associate_public_ip_address}"
+  tags {
+    Name = "${var.DB2Node01-name}"
   }
 
-  disk {
-    type = "${var.DB2Node01_root_disk_type}"
-    template = "${var.DB2Node01-image}"
-    datastore = "${var.DB2Node01_root_disk_datastore}"
-    keep_on_remove = "${var.DB2Node01_root_disk_keep_on_remove}"
-    controller_type = "${var.DB2Node01_root_disk_controller_type}"
-  }
-
-  # Specify the connection
+  # Specify the ssh connection
   connection {
-    type = "ssh"
-    user = "${var.DB2Node01-os_admin_user}"
-    password = "${var.DB2Node01-os_password}"
+    user = "${var.DB2Node01-os_admin_user == "" ? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}"
+    private_key = "${base64decode(var.ibm_pm_private_ssh_key)}"
   }
 
   provisioner "file" {
@@ -443,47 +449,34 @@ resource "vsphere_virtual_machine" "DB2Node01" {
 # =================================================================
 #!/bin/bash
 
-if (( $# != 3 )); then
-echo "usage: arg 1 is user, arg 2 is public key, arg3 is CAMC Public Key"
-exit -1
+if (( $# != 2 )); then
+    echo "usage: arg 1 is user, arg 2 is public key"
+    exit -1
 fi
 
-userid="$1"
-ssh_key="$2"
-camc_ssh_key="$3"
+userid=$1
+ssh_key=$2
+
+if [[ $ssh_key = 'None' ]]; then
+  echo "skipping add, 'None' specified"
+  exit 0
+fi
 
 user_home=$(eval echo "~$userid")
 user_auth_key_file=$user_home/.ssh/authorized_keys
-echo "$user_auth_key_file"
 if ! [ -f $user_auth_key_file ]; then
-echo "$user_auth_key_file does not exist on this system, creating."
-mkdir $user_home/.ssh
-chmod 700 $user_home/.ssh
-touch $user_home/.ssh/authorized_keys
-chmod 600 $user_home/.ssh/authorized_keys
+  echo "$user_auth_key_file does not exist on this system"
+  exit -1
 else
-echo "user_home : $user_home"
+  echo "user_home --> $user_home"
 fi
 
-if [[ $ssh_key = 'None' ]]; then
-echo "skipping user key add, 'None' specified"
-else
-echo "$user_auth_key_file"
-echo "$ssh_key" >> "$user_auth_key_file"
+echo $ssh_key >> $user_auth_key_file
 if [ $? -ne 0 ]; then
-echo "failed to add to $user_auth_key_file"
-exit -1
+  echo "failed to add to $user_auth_key_file"
+  exit -1
 else
-echo "updated $user_auth_key_file"
-fi
-fi
-
-echo "$camc_ssh_key" >> "$user_auth_key_file"
-if [ $? -ne 0 ]; then
-echo "failed to add to $user_auth_key_file"
-exit -1
-else
-echo "updated $user_auth_key_file"
+  echo "updated $user_auth_key_file"
 fi
 
 EOF
@@ -493,10 +486,28 @@ EOF
   provisioner "remote-exec" {
     inline = [
       "bash -c 'chmod +x DB2Node01_add_ssh_key.sh'",
-      "bash -c './DB2Node01_add_ssh_key.sh  \"${var.DB2Node01-os_admin_user}\" \"${var.user_public_ssh_key}\" \"${var.ibm_pm_public_ssh_key}\">> DB2Node01_add_ssh_key.log 2>&1'"
+      "bash -c './DB2Node01_add_ssh_key.sh  \"${var.DB2Node01-os_admin_user}\" \"${var.user_public_ssh_key}\">> DB2Node01_add_ssh_key.log 2>&1'"
     ]
   }
 
+  root_block_device {
+    volume_type = "${var.DB2Node01_root_block_device_volume_type}"
+    volume_size = "${var.DB2Node01_root_block_device_volume_size}"
+    #iops = "${var.DB2Node01_root_block_device_iops}"
+    delete_on_termination = "${var.DB2Node01_root_block_device_delete_on_termination}"
+  }
+
+  user_data = "${data.template_cloudinit_config.DB2Node01_init.rendered}"
+}
+data "template_cloudinit_config" "DB2Node01_init"  {
+  part {
+    content_type = "text/cloud-config"
+    content = <<EOF
+hostname: ${var.DB2Node01-name}
+fqdn: ${var.DB2Node01-name}.${var.runtime_domain}
+manage_etc_hosts: false
+EOF
+  }
 }
 
 #########################################################
@@ -504,7 +515,7 @@ EOF
 #########################################################
 
 resource "camc_bootstrap" "DB2Node01_chef_bootstrap_comp" {
-  depends_on = ["camc_vaultitem.VaultItem","vsphere_virtual_machine.DB2Node01"]
+  depends_on = ["camc_vaultitem.VaultItem","aws_instance.DB2Node01"]
   name = "DB2Node01_chef_bootstrap_comp"
   camc_endpoint = "${var.ibm_pm_service}/v1/bootstrap/chef"
   access_token = "${var.ibm_pm_access_token}"
@@ -512,10 +523,10 @@ resource "camc_bootstrap" "DB2Node01_chef_bootstrap_comp" {
   trace = true
   data = <<EOT
 {
-  "os_admin_user": "${var.DB2Node01-os_admin_user}",
+  "os_admin_user": "${var.DB2Node01-os_admin_user == "default"? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}",
   "stack_id": "${random_id.stack_id.hex}",
   "environment_name": "_default",
-  "host_ip": "${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}",
+  "host_ip": "${var.DB2Node01-mgmt-network-public == "false" ? aws_instance.DB2Node01.private_ip : aws_instance.DB2Node01.public_ip}",
   "node_name": "${var.DB2Node01-name}",
   "node_attributes": {
     "ibm_internal": {
@@ -545,10 +556,10 @@ resource "camc_softwaredeploy" "DB2Node01_db2_create_db" {
   trace = true
   data = <<EOT
 {
-  "os_admin_user": "${var.DB2Node01-os_admin_user}",
+  "os_admin_user": "${var.DB2Node01-os_admin_user == "default"? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}",
   "stack_id": "${random_id.stack_id.hex}",
   "environment_name": "_default",
-  "host_ip": "${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}",
+  "host_ip": "${var.DB2Node01-mgmt-network-public == "false" ? aws_instance.DB2Node01.private_ip : aws_instance.DB2Node01.public_ip}",
   "node_name": "${var.DB2Node01-name}",
   "runlist": "role[db2_create_db]",
   "node_attributes": {
@@ -639,10 +650,10 @@ resource "camc_softwaredeploy" "DB2Node01_db2_v111_install" {
   trace = true
   data = <<EOT
 {
-  "os_admin_user": "${var.DB2Node01-os_admin_user}",
+  "os_admin_user": "${var.DB2Node01-os_admin_user == "default"? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}",
   "stack_id": "${random_id.stack_id.hex}",
   "environment_name": "_default",
-  "host_ip": "${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}",
+  "host_ip": "${var.DB2Node01-mgmt-network-public == "false" ? aws_instance.DB2Node01.private_ip : aws_instance.DB2Node01.public_ip}",
   "node_name": "${var.DB2Node01-name}",
   "runlist": "role[db2_v111_install]",
   "node_attributes": {
@@ -700,7 +711,7 @@ EOT
 }
 
 output "DB2Node01_ip" {
-  value = "VM IP Address : ${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}"
+  value = "Private : ${aws_instance.DB2Node01.private_ip} & Public : ${aws_instance.DB2Node01.public_ip}"
 }
 
 output "DB2Node01_name" {
