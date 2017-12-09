@@ -12,10 +12,6 @@
       "label": "Cloud Input Variables"
     },
     {
-      "name": "virtualmachine",
-      "label": "Virtual Machine Input Variables"
-    },
-    {
       "name": "ssh_keys",
       "label": "SSH Keys"
     },
@@ -26,6 +22,10 @@
     {
       "name": "environment",
       "label": "Environment"
+    },
+    {
+      "name": "virtualmachine",
+      "label": "Virtual Machine Input Variables"
     },
     {
       "name": "ungrouped",
@@ -758,30 +758,6 @@
       "group_name": "environment"
     },
     {
-      "name": "DB2Node01_local_disk",
-      "type": "string",
-      "description": "User local disk or SAN disk",
-      "default": "false",
-      "hidden": false,
-      "label": "IBMCloud - Local / SAN Disk - DB2Node01",
-      "secured": false,
-      "options": [
-        {
-          "value": "true",
-          "label": "True"
-        },
-        {
-          "value": "false",
-          "label": "False",
-          "default": "true"
-        }
-      ],
-      "required": true,
-      "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
-    },
-    {
       "name": "DB2Node01_datacenter",
       "type": "string",
       "description": "IBMCloud datacenter where infrastructure resources will be deployed",
@@ -918,8 +894,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01_dedicated_acct_host_only",
@@ -942,8 +917,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01_hourly_billing",
@@ -966,8 +940,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01_network_speed",
@@ -990,8 +963,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01_private_network_only",
@@ -1014,8 +986,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01_memory",
@@ -1058,8 +1029,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01_number_of_cores",
@@ -1102,8 +1072,7 @@
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01-image",
@@ -1139,18 +1108,17 @@
       "options": [
         {
           "value": "25",
-          "label": "25 GB",
-          "default": true
+          "label": "25 GB"
         },
         {
           "value": "100",
-          "label": "100 GB"
+          "label": "100 GB",
+          "default": true
         }
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "DB2Node01-name",
@@ -1161,30 +1129,31 @@
       "secured": false,
       "required": true,
       "immutable": false,
+      "immutable_after_create": true,
       "group_name": "virtualmachine"
     },
     {
-      "name": "DB2Node01-mgmt-network-public",
+      "name": "DB2Node01_local_disk",
       "type": "string",
-      "description": "Expose and use public IP of virtual machine for internal communication",
-      "default": "true",
+      "description": "User local disk or SAN disk",
+      "default": "false",
       "hidden": false,
-      "label": "Use Public Management Network - DB2Node01",
+      "label": "IBMCloud - Local / SAN Disk - DB2Node01",
       "secured": false,
       "options": [
         {
-          "value": false,
-          "label": false
+          "value": "true",
+          "label": "True"
         },
         {
-          "value": true,
-          "label": true
+          "value": "false",
+          "label": "False",
+          "default": "true"
         }
       ],
       "required": true,
       "immutable": false,
-      "immutable_after_create": true,
-      "group_name": "db2node01"
+      "group_name": "cloud"
     },
     {
       "name": "ibm_pm_private_ssh_key",
@@ -1211,6 +1180,28 @@
       "default": "${advanced_content_runtime_chef.ibm_pm_public_ssh_key_name}"
     },
     {
+      "name": "DB2Node01-mgmt-network-public",
+      "type": "string",
+      "description": "Expose and use public IP of virtual machine for internal communication",
+      "default": "true",
+      "hidden": false,
+      "label": "Use Public Management Network",
+      "secured": false,
+      "options": [
+        {
+          "value": false,
+          "label": false
+        },
+        {
+          "value": true,
+          "label": true
+        }
+      ],
+      "required": true,
+      "immutable": false,
+      "group_name": "virtualmachine"
+    },
+    {
       "name": "user_public_ssh_key",
       "type": "string",
       "description": "User defined public SSH key used to connect to the virtual machine. The format must be in openSSH.",
@@ -1220,6 +1211,7 @@
       "secured": false,
       "required": true,
       "immutable": false,
+      "immutable_after_create": true,
       "group_name": "ssh_keys"
     },
     {

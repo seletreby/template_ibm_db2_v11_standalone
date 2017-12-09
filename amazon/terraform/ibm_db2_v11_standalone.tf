@@ -22,14 +22,17 @@ variable "ibm_pm_private_ssh_key" {
 variable "user_public_ssh_key" {
   type = "string"
   description = "User defined public SSH key used to connect to the virtual machine. The format must be in openSSH."
+  default = "None"
 }
 
 variable "aws_ami_owner_id" {
-  description = "The AMI Owner ID"
+  description = "AWS AMI Owner ID"
+  default = "309956199498"
 }
 
 variable "aws_region" {
-  description = "The aws region"
+  description = "AWS Region Name"
+  default = "us-east-1"
 }
 
 ##############################################################
@@ -42,6 +45,10 @@ provider "aws" {
 
 provider "camc" {
   version = "~> 0.1"
+}
+
+provider "template" {
+  version = "~> 1.0"
 }
 
 provider "random" {
@@ -57,7 +64,7 @@ data "aws_vpc" "selected_vpc" {
 
 #Parameter : aws_vpc_name
 variable "aws_vpc_name" {
-  description = "The name of the aws vpc"
+  description = "AWS VPC Name"
 }
 
 data "aws_security_group" "aws_sg_camc_name_selected" {
@@ -67,7 +74,7 @@ data "aws_security_group" "aws_sg_camc_name_selected" {
 
 #Parameter : aws_sg_camc_name
 variable "aws_sg_camc_name" {
-  description = "The name of the aws security group for automation content"
+  description = "AWS Security Group Name"
 }
 
 resource "random_id" "stack_id" {
@@ -82,23 +89,8 @@ variable "ibm_stack_name" {
   description = "A unique stack name."
 }
 
-#### Default OS Admin User Map ####
-variable "default_os_admin_user" {
-  type        = "map"
-  description = "look up os_admin_user using resource image"
-  default = {
-    ubuntu_images_ubuntu_xenial-16.04_099720109477 = "ubuntu"
-    RHEL-7.4_HVM_GA_309956199498                   = "ec2-user"
-  }
-}
 
 ##### DB2Node01 variables #####
-#Variable : DB2Node01-flavor
-variable "DB2Node01-flavor" {
-  type = "string"
-  description = "DB2Node01 Flavor"
-}
-
 data "aws_ami" "DB2Node01_ami" {
   most_recent = true
   filter {
@@ -112,12 +104,7 @@ data "aws_ami" "DB2Node01_ami" {
 variable "DB2Node01-image" {
   type = "string"
   description = "Operating system image id / template that should be used when creating the virtual image"
-}
-
-#Variable : DB2Node01-mgmt-network-public
-variable "DB2Node01-mgmt-network-public" {
-  type = "string"
-  description = "Expose and use public IP of virtual machine for internal communication"
+  default = "RHEL-7.4_HVM_GA"
 }
 
 #Variable : DB2Node01-name
@@ -136,6 +123,7 @@ variable "DB2Node01-os_admin_user" {
 variable "DB2Node01_db2_base_version" {
   type = "string"
   description = "The base version of DB2 to install. Set to none if installing from fix package."
+  default = "none"
 }
 
 #Variable : DB2Node01_db2_das_password
@@ -148,84 +136,98 @@ variable "DB2Node01_db2_das_password" {
 variable "DB2Node01_db2_das_username" {
   type = "string"
   description = "DB2 Administration Server (DAS) username"
+  default = "db2das1"
 }
 
 #Variable : DB2Node01_db2_fp_version
 variable "DB2Node01_db2_fp_version" {
   type = "string"
   description = "The version of DB2 fix pack to install. If no fix pack is required, set this value the same as DB2 base version."
+  default = "11.1.2.2"
 }
 
 #Variable : DB2Node01_db2_install_dir
 variable "DB2Node01_db2_install_dir" {
   type = "string"
   description = "The directory to install DB2. Recommended: /opt/ibm/db2/V<db2_version>"
+  default = "/opt/ibm/db2/V11.1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_codeset
 variable "DB2Node01_db2_instances_instance1_databases_database1_codeset" {
   type = "string"
   description = "Codeset is used by the database manager to determine codepage parameter values."
+  default = "UTF-8"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_FAILARCHPATH
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_FAILARCHPATH" {
   type = "string"
   description = "The path to be used for archiving log files."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGARCHMETH1
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGARCHMETH1" {
   type = "string"
   description = "Specifies the media type of the primary destination for logs that are archived."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGFILSIZ
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGFILSIZ" {
   type = "string"
   description = "Specifies the size of log files."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGSECOND
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGSECOND" {
   type = "string"
   description = "Specifies the number of secondary log files that are created and used for recovery log files."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_NEWLOGPATH
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_NEWLOGPATH" {
   type = "string"
   description = "The path to be used for database logging."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_ldap_user
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_ldap_user" {
   type = "string"
   description = "This parameter indicates whether the database user is stored in LDAP. If the value set to true, the user is not created on the operating system."
+  default = "false"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_access
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_access" {
   type = "string"
   description = "The database access granted to the user. Example: DBADM WITH DATAACCESS WITHOUT ACCESSCTRL"
+  default = "none"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_gid
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_gid" {
   type = "string"
   description = "Specifies the name of the operating system group for database users."
+  default = "dbgroup1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_home
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_home" {
   type = "string"
   description = "The DB2 database user home directory."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_name
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_name" {
   type = "string"
   description = "The user name to be granted database access."
+  default = "dbuser1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_password
@@ -238,48 +240,56 @@ variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_d
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_collate" {
   type = "string"
   description = "Collate determines ordering for a set of characters."
+  default = "SYSTEM"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_db_data_path
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_data_path" {
   type = "string"
   description = "Specifies the DB2 database data path."
+  default = "/home/db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_db_name
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_name" {
   type = "string"
   description = "The name of the database to be created."
+  default = "db01"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_db_path
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_path" {
   type = "string"
   description = "Specifies the DB2 database path."
+  default = "/home/db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_pagesize
 variable "DB2Node01_db2_instances_instance1_databases_database1_pagesize" {
   type = "string"
   description = "Specifies the page size in bytes."
+  default = "4096"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_territory
 variable "DB2Node01_db2_instances_instance1_databases_database1_territory" {
   type = "string"
   description = "Territory is used by the database manager when processing data that is territory sensitive."
+  default = "US"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_fcm_port
 variable "DB2Node01_db2_instances_instance1_fcm_port" {
   type = "string"
   description = "The port for the DB2 Fast Communications Manager (FCM)."
+  default = "60000"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_fenced_groupname
 variable "DB2Node01_db2_instances_instance1_fenced_groupname" {
   type = "string"
   description = "The group name for the DB2 fenced user."
+  default = "db2fenc1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_fenced_password
@@ -292,18 +302,21 @@ variable "DB2Node01_db2_instances_instance1_fenced_password" {
 variable "DB2Node01_db2_instances_instance1_fenced_username" {
   type = "string"
   description = "The fenced user is used to run user defined functions and stored procedures outside of the address space used by the DB2 database."
+  default = "db2fenc1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_dir
 variable "DB2Node01_db2_instances_instance1_instance_dir" {
   type = "string"
   description = "The DB2 instance directory stores all information that pertains to a database instance."
+  default = "/home/db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_groupname
 variable "DB2Node01_db2_instances_instance1_instance_groupname" {
   type = "string"
   description = "The group name for the DB2 instance user."
+  default = "db2iadm1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_password
@@ -316,24 +329,28 @@ variable "DB2Node01_db2_instances_instance1_instance_password" {
 variable "DB2Node01_db2_instances_instance1_instance_prefix" {
   type = "string"
   description = "Specifies the DB2 instance prefix"
+  default = "INST1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_type
 variable "DB2Node01_db2_instances_instance1_instance_type" {
   type = "string"
   description = "The type of DB2 instance to create."
+  default = "ESE"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_username
 variable "DB2Node01_db2_instances_instance1_instance_username" {
   type = "string"
   description = "The DB2 instance username controls all DB2 processes and owns all filesystems and devices."
+  default = "db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_port
 variable "DB2Node01_db2_instances_instance1_port" {
   type = "string"
   description = "The port to connect to the DB2 instance."
+  default = "50000"
 }
 
 
@@ -366,11 +383,29 @@ variable "ibm_sw_repo_password" {
 variable "ibm_sw_repo_user" {
   type = "string"
   description = "IBM Software Repo Username"
+  default = "repouser"
+}
+
+
+##### virtualmachine variables #####
+#Variable : DB2Node01-flavor
+variable "DB2Node01-flavor" {
+  type = "string"
+  description = "DB2Node01 Flavor"
+  default = "t2.medium"
+}
+
+#Variable : DB2Node01-mgmt-network-public
+variable "DB2Node01-mgmt-network-public" {
+  type = "string"
+  description = "Expose and use public IP of virtual machine for internal communication"
+  default = "true"
 }
 
 ##### domain name #####
 variable "runtime_domain" {
   description = "domain name"
+  default = "cam.ibm.com"
 }
 
 
@@ -396,7 +431,8 @@ variable "DB2Node01_subnet_name" {
 #Parameter : DB2Node01_associate_public_ip_address
 variable "DB2Node01_associate_public_ip_address" {
   type = "string"
-  description = "Assign a public IP"
+  description = "AWS assign a public IP to instance"
+  default = "true"
 }
 
 
@@ -404,6 +440,7 @@ variable "DB2Node01_associate_public_ip_address" {
 variable "DB2Node01_root_block_device_volume_type" {
   type = "string"
   description = "AWS Root Block Device Volume Type"
+  default = "gp2"
 }
 
 
@@ -411,6 +448,7 @@ variable "DB2Node01_root_block_device_volume_type" {
 variable "DB2Node01_root_block_device_volume_size" {
   type = "string"
   description = "AWS Root Block Device Volume Size"
+  default = "100"
 }
 
 
@@ -418,6 +456,7 @@ variable "DB2Node01_root_block_device_volume_size" {
 variable "DB2Node01_root_block_device_delete_on_termination" {
   type = "string"
   description = "AWS Root Block Device Delete on Termination"
+  default = "true"
 }
 
 resource "aws_instance" "DB2Node01" {
@@ -433,7 +472,7 @@ resource "aws_instance" "DB2Node01" {
 
   # Specify the ssh connection
   connection {
-    user = "${var.DB2Node01-os_admin_user == "" ? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}"
+    user = "${var.DB2Node01-os_admin_user}"
     private_key = "${base64decode(var.ibm_pm_private_ssh_key)}"
   }
 
@@ -503,7 +542,7 @@ data "template_cloudinit_config" "DB2Node01_init"  {
   part {
     content_type = "text/cloud-config"
     content = <<EOF
-hostname: ${var.DB2Node01-name}
+hostname: ${var.DB2Node01-name}.${var.runtime_domain}
 fqdn: ${var.DB2Node01-name}.${var.runtime_domain}
 manage_etc_hosts: false
 EOF
@@ -523,7 +562,7 @@ resource "camc_bootstrap" "DB2Node01_chef_bootstrap_comp" {
   trace = true
   data = <<EOT
 {
-  "os_admin_user": "${var.DB2Node01-os_admin_user == "default"? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}",
+  "os_admin_user": "${var.DB2Node01-os_admin_user}",
   "stack_id": "${random_id.stack_id.hex}",
   "environment_name": "_default",
   "host_ip": "${var.DB2Node01-mgmt-network-public == "false" ? aws_instance.DB2Node01.private_ip : aws_instance.DB2Node01.public_ip}",
@@ -556,7 +595,7 @@ resource "camc_softwaredeploy" "DB2Node01_db2_create_db" {
   trace = true
   data = <<EOT
 {
-  "os_admin_user": "${var.DB2Node01-os_admin_user == "default"? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}",
+  "os_admin_user": "${var.DB2Node01-os_admin_user}",
   "stack_id": "${random_id.stack_id.hex}",
   "environment_name": "_default",
   "host_ip": "${var.DB2Node01-mgmt-network-public == "false" ? aws_instance.DB2Node01.private_ip : aws_instance.DB2Node01.public_ip}",
@@ -650,7 +689,7 @@ resource "camc_softwaredeploy" "DB2Node01_db2_v111_install" {
   trace = true
   data = <<EOT
 {
-  "os_admin_user": "${var.DB2Node01-os_admin_user == "default"? lookup(var.default_os_admin_user, format("%s_%s", replace(var.DB2Node01-image, "/", "_"), var.aws_ami_owner_id)) : var.DB2Node01-os_admin_user}",
+  "os_admin_user": "${var.DB2Node01-os_admin_user}",
   "stack_id": "${random_id.stack_id.hex}",
   "environment_name": "_default",
   "host_ip": "${var.DB2Node01-mgmt-network-public == "false" ? aws_instance.DB2Node01.private_ip : aws_instance.DB2Node01.public_ip}",

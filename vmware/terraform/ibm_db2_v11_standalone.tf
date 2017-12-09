@@ -14,6 +14,7 @@
 variable "user_public_ssh_key" {
   type = "string"
   description = "User defined public SSH key used to connect to the virtual machine. The format must be in openSSH."
+  default = "None"
 }
 
 variable "ibm_pm_public_ssh_key" {
@@ -26,6 +27,7 @@ variable "ibm_pm_private_ssh_key" {
 
 variable "allow_unverified_ssl" {
   description = "Communication with vsphere server with self signed certificate"
+  default = "true"
 }
 
 ##############################################################
@@ -56,7 +58,6 @@ variable "ibm_stack_name" {
   description = "A unique stack name."
 }
 
-#### Default OS Admin User Map ####
 
 ##### DB2Node01 variables #####
 #Variable : DB2Node01-image
@@ -81,6 +82,7 @@ variable "DB2Node01-os_admin_user" {
 variable "DB2Node01_db2_base_version" {
   type = "string"
   description = "The base version of DB2 to install. Set to none if installing from fix package."
+  default = "none"
 }
 
 #Variable : DB2Node01_db2_das_password
@@ -93,84 +95,98 @@ variable "DB2Node01_db2_das_password" {
 variable "DB2Node01_db2_das_username" {
   type = "string"
   description = "DB2 Administration Server (DAS) username"
+  default = "db2das1"
 }
 
 #Variable : DB2Node01_db2_fp_version
 variable "DB2Node01_db2_fp_version" {
   type = "string"
   description = "The version of DB2 fix pack to install. If no fix pack is required, set this value the same as DB2 base version."
+  default = "11.1.2.2"
 }
 
 #Variable : DB2Node01_db2_install_dir
 variable "DB2Node01_db2_install_dir" {
   type = "string"
   description = "The directory to install DB2. Recommended: /opt/ibm/db2/V<db2_version>"
+  default = "/opt/ibm/db2/V11.1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_codeset
 variable "DB2Node01_db2_instances_instance1_databases_database1_codeset" {
   type = "string"
   description = "Codeset is used by the database manager to determine codepage parameter values."
+  default = "UTF-8"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_FAILARCHPATH
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_FAILARCHPATH" {
   type = "string"
   description = "The path to be used for archiving log files."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGARCHMETH1
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGARCHMETH1" {
   type = "string"
   description = "Specifies the media type of the primary destination for logs that are archived."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGFILSIZ
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGFILSIZ" {
   type = "string"
   description = "Specifies the size of log files."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGSECOND
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_LOGSECOND" {
   type = "string"
   description = "Specifies the number of secondary log files that are created and used for recovery log files."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_update_NEWLOGPATH
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_update_NEWLOGPATH" {
   type = "string"
   description = "The path to be used for database logging."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_ldap_user
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_ldap_user" {
   type = "string"
   description = "This parameter indicates whether the database user is stored in LDAP. If the value set to true, the user is not created on the operating system."
+  default = "false"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_access
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_access" {
   type = "string"
   description = "The database access granted to the user. Example: DBADM WITH DATAACCESS WITHOUT ACCESSCTRL"
+  default = "none"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_gid
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_gid" {
   type = "string"
   description = "Specifies the name of the operating system group for database users."
+  default = "dbgroup1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_home
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_home" {
   type = "string"
   description = "The DB2 database user home directory."
+  default = "default"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_name
 variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_name" {
   type = "string"
   description = "The user name to be granted database access."
+  default = "dbuser1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_database_users_db_user1_user_password
@@ -183,48 +199,56 @@ variable "DB2Node01_db2_instances_instance1_databases_database1_database_users_d
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_collate" {
   type = "string"
   description = "Collate determines ordering for a set of characters."
+  default = "SYSTEM"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_db_data_path
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_data_path" {
   type = "string"
   description = "Specifies the DB2 database data path."
+  default = "/home/db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_db_name
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_name" {
   type = "string"
   description = "The name of the database to be created."
+  default = "db01"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_db_path
 variable "DB2Node01_db2_instances_instance1_databases_database1_db_path" {
   type = "string"
   description = "Specifies the DB2 database path."
+  default = "/home/db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_pagesize
 variable "DB2Node01_db2_instances_instance1_databases_database1_pagesize" {
   type = "string"
   description = "Specifies the page size in bytes."
+  default = "4096"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_databases_database1_territory
 variable "DB2Node01_db2_instances_instance1_databases_database1_territory" {
   type = "string"
   description = "Territory is used by the database manager when processing data that is territory sensitive."
+  default = "US"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_fcm_port
 variable "DB2Node01_db2_instances_instance1_fcm_port" {
   type = "string"
   description = "The port for the DB2 Fast Communications Manager (FCM)."
+  default = "60000"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_fenced_groupname
 variable "DB2Node01_db2_instances_instance1_fenced_groupname" {
   type = "string"
   description = "The group name for the DB2 fenced user."
+  default = "db2fenc1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_fenced_password
@@ -237,18 +261,21 @@ variable "DB2Node01_db2_instances_instance1_fenced_password" {
 variable "DB2Node01_db2_instances_instance1_fenced_username" {
   type = "string"
   description = "The fenced user is used to run user defined functions and stored procedures outside of the address space used by the DB2 database."
+  default = "db2fenc1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_dir
 variable "DB2Node01_db2_instances_instance1_instance_dir" {
   type = "string"
   description = "The DB2 instance directory stores all information that pertains to a database instance."
+  default = "/home/db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_groupname
 variable "DB2Node01_db2_instances_instance1_instance_groupname" {
   type = "string"
   description = "The group name for the DB2 instance user."
+  default = "db2iadm1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_password
@@ -261,24 +288,28 @@ variable "DB2Node01_db2_instances_instance1_instance_password" {
 variable "DB2Node01_db2_instances_instance1_instance_prefix" {
   type = "string"
   description = "Specifies the DB2 instance prefix"
+  default = "INST1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_type
 variable "DB2Node01_db2_instances_instance1_instance_type" {
   type = "string"
   description = "The type of DB2 instance to create."
+  default = "ESE"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_instance_username
 variable "DB2Node01_db2_instances_instance1_instance_username" {
   type = "string"
   description = "The DB2 instance username controls all DB2 processes and owns all filesystems and devices."
+  default = "db2inst1"
 }
 
 #Variable : DB2Node01_db2_instances_instance1_port
 variable "DB2Node01_db2_instances_instance1_port" {
   type = "string"
   description = "The port to connect to the DB2 instance."
+  default = "50000"
 }
 
 
@@ -311,8 +342,11 @@ variable "ibm_sw_repo_password" {
 variable "ibm_sw_repo_user" {
   type = "string"
   description = "IBM Software Repo Username"
+  default = "repouser"
 }
 
+
+##### virtualmachine variables #####
 
 #########################################################
 ##### Resource : DB2Node01
@@ -337,10 +371,12 @@ variable "DB2Node01_domain" {
 
 variable "DB2Node01_number_of_vcpu" {
   description = "Number of virtual CPU for the virtual machine, which is required to be a positive Integer"
+  default = "2"
 }
 
 variable "DB2Node01_memory" {
   description = "Memory assigned to the virtual machine in megabytes. This value is required to be an increment of 1024"
+  default = "4096"
 }
 
 variable "DB2Node01_cluster" {
@@ -375,6 +411,7 @@ variable "DB2Node01_ipv4_prefix_length" {
 
 variable "DB2Node01_adapter_type" {
   description = "Network adapter type for vNIC Configuration"
+  default = "vmxnet3"
 }
 
 variable "DB2Node01_root_disk_datastore" {
@@ -384,16 +421,19 @@ variable "DB2Node01_root_disk_datastore" {
 variable "DB2Node01_root_disk_type" {
   type = "string"
   description = "Type of template disk volume"
+  default = "eager_zeroed"
 }
 
 variable "DB2Node01_root_disk_controller_type" {
   type = "string"
   description = "Type of template disk controller"
+  default = "scsi"
 }
 
 variable "DB2Node01_root_disk_keep_on_remove" {
   type = "string"
   description = "Delete template disk volume when the virtual machine is deleted"
+  default = "false"
 }
 
 # vsphere vm
