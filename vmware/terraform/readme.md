@@ -1,5 +1,5 @@
 # Template - IBM DB2 Enterprise Server Edition V11.1 on a single virtual machine
-Template Version - 1.0
+Template Version - 2.0
 
 ## Description
 
@@ -10,10 +10,6 @@ This template deploys a standalone instance of IBM DB2 Enterprise Server Edition
 ### Clouds
 
  VMware<br>
-<br>
-### Template Version
-
-1.0<br>
 <br>
 ### Operating Systems Supported
 
@@ -33,14 +29,15 @@ IBM DB2 Enterprise Server Edition V11.1<br>
 <br>
 ### Default Virtual Machine Settings
 
- vCPU 2, Memory (GB) 4<br>
+ vCPU 2, Memory (GB) 4, Disk (GB) 100<br>
 <br>
 ### Usage and Special Notes
 
 1. The user is responsible for obtaining appropriate software licenses and downloads prior to template deployment.<br>
 2. Detailed system requirements for DB2 V11.1 - <a href=\"https://www.ibm.com/software/reports/compatibility/clarity/index.html\" target=\"_blank\">https://www.ibm.com/software/reports/compatibility/clarity/index.html</a><br>
-3. IBM Knowledge Center for DB2 V11.1 - <a href=\"https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.1.0\" target=\"_blank\">https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.1.0</a><br>
-4. IBM Support Portal - <a href=\"https://www.ibm.com/support/home/\" target=\"_blank\">https://www.ibm.com/support/home/</a><br>
+3. Recommended Fix Packs for DB2 - <a href=\"http://www-01.ibm.com/support/docview.wss?uid=swg21321001\" target=\"_blank\">http://www-01.ibm.com/support/docview.wss?uid=swg21321001</a><br>
+4. IBM Knowledge Center for DB2 V11.1 - <a href=\"https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.1.0\" target=\"_blank\">https://www.ibm.com/support/knowledgecenter/en/SSEPGG_11.1.0</a><br>
+5. IBM Support Portal - <a href=\"https://www.ibm.com/support/home/\" target=\"_blank\">https://www.ibm.com/support/home/</a><br>
 <br>
 
 
@@ -48,7 +45,7 @@ IBM DB2 Enterprise Server Edition V11.1<br>
 
 ### License and Maintainer
 
-Copyright IBM Corp. 2016, 2017 
+Copyright IBM Corp. 2017, 2018
 
 ### Target Cloud Type
 
@@ -67,8 +64,8 @@ VMware vSphere
 ### Minor Versions
 
 - IBM DB2 Enterprise Server 10.5.0.3
-- IBM DB2 Enterprise Server 10.5.0.8
-- IBM DB2 Enterprise Server 11.1.0.0
+- IBM DB2 Enterprise Server 10.5.0.9
+- IBM DB2 Enterprise Server 11.1.2.2
 
 
 *Note, these represent base versions only, explicit fixpacks may also be added.*
@@ -232,7 +229,7 @@ The following files are neccessary on the Software Repository to successfully in
     <td>10</td>
     <td>X86_64</td>
     <td>/db2/v105/base</td>
-    <td><br>DB2_Svr_10.5.0.0_Linux_linuxx64.tar.gz</br></td>
+    <td><br>DB2_Svr_10.5.0.8_Linux_linuxx64.tar.gz</br></td>
   </tr>
 </table>
 
@@ -245,16 +242,16 @@ The following files are neccessary on the Software Repository to successfully in
     <th>File</th>
   </tr>
   <tr>
-    <td>10.5.0.3</td>
+    <td>10.5.0.9</td>
     <td>X86_64</td>
     <td>/db2/v105/maint</td>
-    <td><br>DB2_Svr_10.5.0.3_Linux_linuxx64.tar.gz</br></td>
+    <td><br>DB2_Svr_10.5.0.9_Linux_linuxx64.tar.gz</br></td>
   </tr>
   <tr>
     <td>11.1</td>
     <td>X86_64</td>
     <td>/db2/v111/base</td>
-    <td><br>DB2_Svr_11.1.0.0_Linux_linuxx64.tar.gz</br></td>
+    <td><br>DB2_Svr_11.1.2.2_Linux_linuxx64.tar.gz</br></td>
   </tr>
 </table>
 
@@ -287,4 +284,3 @@ The following is required prior to deploying the template on the target cloud. T
 </table>
 
 These variables are typically defined when creating a Cloud Connection.
-

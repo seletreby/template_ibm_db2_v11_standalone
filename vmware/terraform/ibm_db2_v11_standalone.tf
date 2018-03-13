@@ -1,20 +1,33 @@
 # =================================================================
-# Licensed Materials - Property of IBM
-# 5737-E67
-# @ Copyright IBM Corporation 2016, 2017 All Rights Reserved
-# US Government Users Restricted Rights - Use, duplication or disclosure
-# restricted by GSA ADP Schedule Contract with IBM Corp.
+# Copyright 2017 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#	you may not use this file except in compliance with the License.
+#	You may obtain a copy of the License at
+#
+#	  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+#	WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # =================================================================
 
 # This is a terraform generated template generated from ibm_db2_v11_standalone
 
 ##############################################################
-# Keys - CAMC (public/private) & optional User Key (public) 
+# Keys - CAMC (public/private) & optional User Key (public)
 ##############################################################
 variable "user_public_ssh_key" {
   type = "string"
   description = "User defined public SSH key used to connect to the virtual machine. The format must be in openSSH."
   default = "None"
+}
+
+variable "ibm_stack_id" {
+  description = "A unique stack id."
 }
 
 variable "ibm_pm_public_ssh_key" {
@@ -31,33 +44,48 @@ variable "allow_unverified_ssl" {
 }
 
 ##############################################################
-# Define the vsphere provider 
+# Define the vsphere provider
 ##############################################################
 provider "vsphere" {
   allow_unverified_ssl = "${var.allow_unverified_ssl}"
-  version = "~> 0.4"
+  version = "~> 1.2"
 }
 
 provider "camc" {
   version = "~> 0.1"
 }
 
-provider "random" {
-  version = "~> 1.0"
-}
-
-resource "random_id" "stack_id" {
-  byte_length = "16"
-}
-
 ##############################################################
-# Define pattern variables 
+# Define pattern variables
 ##############################################################
 ##### unique stack name #####
 variable "ibm_stack_name" {
   description = "A unique stack name."
 }
 
+##############################################################
+# Vsphere data for provider
+##############################################################
+data "vsphere_datacenter" "DB2Node01_datacenter" {
+  name = "${var.DB2Node01_datacenter}"
+}
+data "vsphere_datastore" "DB2Node01_datastore" {
+  name = "${var.DB2Node01_root_disk_datastore}"
+  datacenter_id = "${data.vsphere_datacenter.DB2Node01_datacenter.id}"
+}
+data "vsphere_resource_pool" "DB2Node01_resource_pool" {
+  name = "${var.DB2Node01_resource_pool}"
+  datacenter_id = "${data.vsphere_datacenter.DB2Node01_datacenter.id}"
+}
+data "vsphere_network" "DB2Node01_network" {
+  name = "${var.DB2Node01_network_interface_label}"
+  datacenter_id = "${data.vsphere_datacenter.DB2Node01_datacenter.id}"
+}
+
+data "vsphere_virtual_machine" "DB2Node01_template" {
+  name = "${var.DB2Node01-image}"
+  datacenter_id = "${data.vsphere_datacenter.DB2Node01_datacenter.id}"
+}
 
 ##### DB2Node01 variables #####
 #Variable : DB2Node01-image
@@ -376,11 +404,15 @@ variable "DB2Node01_number_of_vcpu" {
 
 variable "DB2Node01_memory" {
   description = "Memory assigned to the virtual machine in megabytes. This value is required to be an increment of 1024"
-  default = "4096"
+  default = "2048"
 }
 
 variable "DB2Node01_cluster" {
   description = "Target vSphere cluster to host the virtual machine"
+}
+
+variable "DB2Node01_resource_pool" {
+  description = "Target vSphere Resource Pool to host the virtual machine"
 }
 
 variable "DB2Node01_dns_suffixes" {
@@ -418,50 +450,52 @@ variable "DB2Node01_root_disk_datastore" {
   description = "Data store or storage cluster name for target virtual machine's disks"
 }
 
-variable "DB2Node01_root_disk_type" {
-  type = "string"
-  description = "Type of template disk volume"
-  default = "eager_zeroed"
-}
-
-variable "DB2Node01_root_disk_controller_type" {
-  type = "string"
-  description = "Type of template disk controller"
-  default = "scsi"
-}
-
 variable "DB2Node01_root_disk_keep_on_remove" {
   type = "string"
   description = "Delete template disk volume when the virtual machine is deleted"
   default = "false"
 }
 
+variable "DB2Node01_root_disk_size" {
+  description = "Size of template disk volume. Should be equal to template's disk size"
+  default = "100"
+}
+
 # vsphere vm
 resource "vsphere_virtual_machine" "DB2Node01" {
   name = "${var.DB2Node01-name}"
-  domain = "${var.DB2Node01_domain}"
   folder = "${var.DB2Node01_folder}"
-  datacenter = "${var.DB2Node01_datacenter}"
-  vcpu = "${var.DB2Node01_number_of_vcpu}"
+  num_cpus = "${var.DB2Node01_number_of_vcpu}"
   memory = "${var.DB2Node01_memory}"
-  cluster = "${var.DB2Node01_cluster}"
-  dns_suffixes = "${var.DB2Node01_dns_suffixes}"
-  dns_servers = "${var.DB2Node01_dns_servers}"
+  resource_pool_id = "${data.vsphere_resource_pool.DB2Node01_resource_pool.id}"
+  datastore_id = "${data.vsphere_datastore.DB2Node01_datastore.id}"
+  guest_id = "${data.vsphere_virtual_machine.DB2Node01_template.guest_id}"
+  clone {
+    template_uuid = "${data.vsphere_virtual_machine.DB2Node01_template.id}"
+    customize {
+      linux_options {
+        domain = "${var.DB2Node01_domain}"
+        host_name = "${var.DB2Node01-name}"
+      }
+    network_interface {
+      ipv4_address = "${var.DB2Node01_ipv4_address}"
+      ipv4_netmask = "${var.DB2Node01_ipv4_prefix_length}"
+    }
+    ipv4_gateway = "${var.DB2Node01_ipv4_gateway}"
+    dns_suffix_list = "${var.DB2Node01_dns_suffixes}"
+    dns_server_list = "${var.DB2Node01_dns_servers}"
+    }
+  }
 
   network_interface {
-    label = "${var.DB2Node01_network_interface_label}"
-    ipv4_gateway = "${var.DB2Node01_ipv4_gateway}"
-    ipv4_address = "${var.DB2Node01_ipv4_address}"
-    ipv4_prefix_length = "${var.DB2Node01_ipv4_prefix_length}"
+    network_id = "${data.vsphere_network.DB2Node01_network.id}"
     adapter_type = "${var.DB2Node01_adapter_type}"
   }
 
   disk {
-    type = "${var.DB2Node01_root_disk_type}"
-    template = "${var.DB2Node01-image}"
-    datastore = "${var.DB2Node01_root_disk_datastore}"
+    label = "${var.DB2Node01-name}.disk0"
+    size = "${var.DB2Node01_root_disk_size}"
     keep_on_remove = "${var.DB2Node01_root_disk_keep_on_remove}"
-    controller_type = "${var.DB2Node01_root_disk_controller_type}"
   }
 
   # Specify the connection
@@ -475,11 +509,20 @@ resource "vsphere_virtual_machine" "DB2Node01" {
     destination = "DB2Node01_add_ssh_key.sh"
     content     = <<EOF
 # =================================================================
-# Licensed Materials - Property of IBM
-# 5737-E67
-# @ Copyright IBM Corporation 2016, 2017 All Rights Reserved
-# US Government Users Restricted Rights - Use, duplication or disclosure
-# restricted by GSA ADP Schedule Contract with IBM Corp.
+# Copyright 2017 IBM Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+#	you may not use this file except in compliance with the License.
+#	You may obtain a copy of the License at
+#
+#	  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+#	WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # =================================================================
 #!/bin/bash
 
@@ -553,17 +596,17 @@ resource "camc_bootstrap" "DB2Node01_chef_bootstrap_comp" {
   data = <<EOT
 {
   "os_admin_user": "${var.DB2Node01-os_admin_user}",
-  "stack_id": "${random_id.stack_id.hex}",
+  "stack_id": "${var.ibm_stack_id}",
   "environment_name": "_default",
-  "host_ip": "${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}",
+  "host_ip": "${vsphere_virtual_machine.DB2Node01.clone.0.customize.0.network_interface.0.ipv4_address}",
   "node_name": "${var.DB2Node01-name}",
   "node_attributes": {
     "ibm_internal": {
-      "stack_id": "${random_id.stack_id.hex}",
+      "stack_id": "${var.ibm_stack_id}",
       "stack_name": "${var.ibm_stack_name}",
       "vault": {
         "item": "secrets",
-        "name": "${random_id.stack_id.hex}"
+        "name": "${var.ibm_stack_id}"
       }
     }
   }
@@ -586,9 +629,9 @@ resource "camc_softwaredeploy" "DB2Node01_db2_create_db" {
   data = <<EOT
 {
   "os_admin_user": "${var.DB2Node01-os_admin_user}",
-  "stack_id": "${random_id.stack_id.hex}",
+  "stack_id": "${var.ibm_stack_id}",
   "environment_name": "_default",
-  "host_ip": "${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}",
+  "host_ip": "${vsphere_virtual_machine.DB2Node01.clone.0.customize.0.network_interface.0.ipv4_address}",
   "node_name": "${var.DB2Node01-name}",
   "runlist": "role[db2_create_db]",
   "node_attributes": {
@@ -659,7 +702,7 @@ resource "camc_softwaredeploy" "DB2Node01_db2_create_db" {
         }
       }
     },
-    "vault": "${random_id.stack_id.hex}"
+    "vault": "${var.ibm_stack_id}"
   }
 }
 EOT
@@ -680,9 +723,9 @@ resource "camc_softwaredeploy" "DB2Node01_db2_v111_install" {
   data = <<EOT
 {
   "os_admin_user": "${var.DB2Node01-os_admin_user}",
-  "stack_id": "${random_id.stack_id.hex}",
+  "stack_id": "${var.ibm_stack_id}",
   "environment_name": "_default",
-  "host_ip": "${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}",
+  "host_ip": "${vsphere_virtual_machine.DB2Node01.clone.0.customize.0.network_interface.0.ipv4_address}",
   "node_name": "${var.DB2Node01-name}",
   "runlist": "role[db2_v111_install]",
   "node_attributes": {
@@ -712,7 +755,7 @@ resource "camc_softwaredeploy" "DB2Node01_db2_v111_install" {
         "sw_repo_password": "${var.ibm_sw_repo_password}"
       }
     },
-    "vault": "${random_id.stack_id.hex}"
+    "vault": "${var.ibm_stack_id}"
   }
 }
 EOT
@@ -733,14 +776,14 @@ resource "camc_vaultitem" "VaultItem" {
   "vault_content": {
     "item": "secrets",
     "values": {},
-    "vault": "${random_id.stack_id.hex}"
+    "vault": "${var.ibm_stack_id}"
   }
 }
 EOT
 }
 
 output "DB2Node01_ip" {
-  value = "VM IP Address : ${vsphere_virtual_machine.DB2Node01.network_interface.0.ipv4_address}"
+  value = "VM IP Address : ${vsphere_virtual_machine.DB2Node01.clone.0.customize.0.network_interface.0.ipv4_address}"
 }
 
 output "DB2Node01_name" {
@@ -752,6 +795,5 @@ output "DB2Node01_roles" {
 }
 
 output "stack_id" {
-  value = "${random_id.stack_id.hex}"
+  value = "${var.ibm_stack_id}"
 }
-
