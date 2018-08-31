@@ -1,7 +1,7 @@
 {
     "name": "IBM DB2 Enterprise Server Edition V11.1 on a single virtual machine - IBM",
     "description": "This template deploys a standalone instance of IBM DB2 Enterprise Server Edition V11.1 on a Linux virtual machine.",
-    "version": "2.0",
+    "version": "2.1",
     "imageUrl": "",
     "image": "",
     "type": "chefcontent",

@@ -1,5 +1,5 @@
 # Template - IBM DB2 Enterprise Server Edition V11.1 on a single virtual machine
-Template Version - 2.0
+Template Version - 2.1
 
 ## Description
 
