@@ -461,6 +461,28 @@ variable "DB2Node01_root_disk_size" {
   description = "Size of template disk volume. Should be equal to template's disk size"
   default     = "100"
 }
+variable "storage-volume_disk_name" {
+  type        = "string"
+  description = "Disk Name - DB2Node01"
+  default     = "disk1"
+}
+
+variable "storage-volume_disk_size" {
+  type        = "string"
+  description = "Disk Volume Size - DB2Node01"
+  default     = "10"
+}
+
+variable "storage-volume_disk_keep_on_remove" {
+  type        = "string"
+  description = "Disk Keep On Remove - DB2Node01"
+  default     = "false"
+}
+
+variable "storage-volume_disk_datastore" {
+  type        = "string"
+  description = "Disk Datastore - DB2Node01"
+}
 
 module "provision_proxy" {
   source 						= "git::https://github.com/IBM-CAMHub-Open/terraform-modules.git?ref=1.0//vmware/proxy"
