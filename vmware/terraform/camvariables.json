@@ -1044,6 +1044,17 @@
       "immutable": false,
       "group_name": "virtualmachine"
     },
+     {
+      "name": "storage-volume_disk_datastore",
+      "type": "string",
+      "description": "Disk Datastore - DB2Node01",
+      "hidden": false,
+      "label": "Disk 1 Datastore - DB2Node01",
+      "secured": false,
+      "required": true,
+      "immutable": false,
+      "group_name": "virtualmachine"
+    },
     {
       "name": "DB2Node01_ipv4_gateway",
       "type": "string",
